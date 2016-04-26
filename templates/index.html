@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Weather</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+    <style>
+      body {padding: 20px; }
+      pre { max-height: 300px; overflow-y: scroll;}
+      .string { color: green; }
+      .number { color: darkorange; }
+      .boolean { color: blue; }
+      .null { color: magenta; }
+      .key { color: red; }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12 col-md-4">
+          <a href="/api/openweathermap/" class="weather-requets" data-target="#openweathermap-content">
+            OpenWeatherMap: today</a>
+        </div>
+        <div class="col-xs-12 col-md-8">
+          <pre>
+            <div id="openweathermap-content"></div>
+          </pre>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12 col-md-4">
+          <a href="/api/openweathermap_5_days/" class="weather-requets" data-target="#openweathermap-5-days-content">
+          OpenWeatherMap forecast: 5 days</a>
+        </div>
+        <div class="col-xs-12 col-md-8">
+          <pre>
+            <div id="openweathermap-5-days-content"></div>
+          </pre>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12 col-md-4">
+          <a href="/api/yahoo/" class="weather-requets" data-target="#yahoo-content">
+          Yahoo: today and forecast</a>
+        </div>
+        <div class="col-xs-12 col-md-8">
+          <pre>
+            <div id="yahoo-content"></div>
+          </pre>
+        </div>
+      </div>
+
+    </div>
+  </body>
+
+  <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      function syntaxHighlight(json) {
+          if (typeof json != 'string') {
+               json = JSON.stringify(json, undefined, 2);
+          }
+          json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+              var cls = 'number';
+              if (/^"/.test(match)) {
+                  if (/:$/.test(match)) {
+                      cls = 'key';
+                  } else {
+                      cls = 'string';
+                  }
+              } else if (/true|false/.test(match)) {
+                  cls = 'boolean';
+              } else if (/null/.test(match)) {
+                  cls = 'null';
+              }
+              return '<span class="' + cls + '">' + match + '</span>';
+          });
+      }
+
+      $('.weather-requets').on('click', function(e) {
+        e.preventDefault();
+
+        var $el = $(this);
+        var $target = $($el.attr('data-target'));
+
+        $target.html('Loading...')
+
+        $.ajax({
+          url: $el.attr('href'),
+          type: 'GET'
+        })
+        .success(function(response){
+          $target.html(syntaxHighlight(response));
+        })
+        .error(function() {
+          $target.html('Error occurs').addClass('error');
+        });
+      })
+    });
+  </script>
+
+</html>
